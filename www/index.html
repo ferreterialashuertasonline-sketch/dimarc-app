@@ -21,26 +21,27 @@
   }
   *{box-sizing:border-box;}
   body{
-    margin:0;
-    background:#C3D4DE;
-    font-family:'Manrope', -apple-system, sans-serif;
-    display:flex;
-    justify-content:center;
-    padding:24px 12px;
-    min-height:100vh;
-  }
-  .phone{
-    width:390px;
-    max-width:100%;
-    background:var(--bg);
-    border-radius:30px;
-    box-shadow:0 24px 60px rgba(6,40,58,0.35);
-    overflow:hidden;
-    display:flex;
-    flex-direction:column;
-    height:800px;
-    position:relative;
-  }
+  margin:0;
+  background:var(--bg);
+  font-family:'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+  min-height:100dvh;
+  width:100%;
+  overflow:hidden;
+}
+
+.phone{
+  width:100%;
+  max-width:none;
+  min-height:100dvh;
+  height:100dvh;
+  background:var(--bg);
+  border-radius:0;
+  box-shadow:none;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  position:relative;
+}
   header{
     background:linear-gradient(135deg, var(--brand-dark), var(--ink) 130%);
     color:#fff;
