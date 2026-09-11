@@ -1,0 +1,6 @@
+{
+  "appId": "com.dimarc.appcomercial",
+  "appName": "DIMARC App Comercial",
+  "webDir": "www",
+  "bundledWebRuntime": false
+}
