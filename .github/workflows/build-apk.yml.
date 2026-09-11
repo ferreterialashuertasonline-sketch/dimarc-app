@@ -1,0 +1,46 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar el código del repositorio
+        uses: actions/checkout@v4
+
+      - name: Instalar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Instalar dependencias del proyecto
+        run: npm install
+
+      - name: Añadir la plataforma Android
+        run: npx cap add android
+
+      - name: Sincronizar los ficheros web dentro de Android
+        run: npx cap sync android
+
+      - name: Instalar Java (necesario para compilar Android)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Dar permisos de ejecución a gradlew
+        run: chmod +x android/gradlew
+
+      - name: Compilar el APK
+        working-directory: android
+        run: ./gradlew assembleDebug
+
+      - name: Subir el APK como descarga
+        uses: actions/upload-artifact@v4
+        with:
+          name: dimarc-app-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
