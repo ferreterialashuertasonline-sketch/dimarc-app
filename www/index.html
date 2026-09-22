@@ -186,17 +186,16 @@ let stock = []; // se rellena solo al cargar, ver cargarStockEnVivo()
 
 // Categorías detectadas automáticamente a partir de la descripción
 function detectarCategoria(desc){
-  if(desc.includes('MOSQUITERA')) return 'mosquitera';
+  if(desc.includes('MOSQUITERA') || desc.includes('MALLA 6X6')) return 'mosquitera';
   if(desc.includes('SOMBREO')) return 'sombreo';
   if(desc.includes('MALLA ANTIHIERBA')) return 'antihierba';
-  if(desc.includes('MALLA 6X6')) return 'malla6x6';
   if(desc.includes('PLASTICO AGRICOLA') || desc.includes('PLASTICO')) return 'plastico';
   return 'otros';
 }
 stock.forEach(s => s.cat = detectarCategoria(s.desc));
 
 // Orden en el que queremos que aparezcan las categorías en la lista
-const ORDEN_CATEGORIAS = ['sombreo', 'antihierba', 'plastico', 'mosquitera', 'malla6x6', 'otros'];
+const ORDEN_CATEGORIAS = ['sombreo', 'antihierba', 'plastico', 'mosquitera', 'otros'];
 
 // Saca la medida (en metros) de la descripción para poder ordenar de menor a mayor.
 // Sirve tanto para "2,10M" (antihierba/sombreo) como para "4X50MT" (plástico agrícola).
@@ -208,23 +207,24 @@ function extraerMedida(desc){
   return 999999; // si no encontramos medida, lo mandamos al final
 }
 
-// Saca el color de un artículo de sombreo, ej: "...90% 1M VERDE CLARO" -> "VERDE CLARO"
-function extraerColorSombreo(desc){
-  const m = desc.match(/SOMBREO\s+\d+%\s+[\d,]+M\s+(.+)/i);
-  return m ? m[1].trim() : '';
+// Saca el color de cualquier artículo buscando palabras de color conocidas en el texto
+function extraerColor(desc){
+  const colores = ['BEIGE', 'NEGRO', 'MARRON', 'VERDE', 'BLANCA'];
+  return colores.find(c => desc.includes(c)) || '';
 }
 
 // Ordena el stock: primero por categoría (según ORDEN_CATEGORIAS), y dentro de
-// "sombreo" por color y luego medida; en el resto, por medida ascendente.
+// "sombreo" y "mosquitera" por color y luego medida; en el resto, por medida ascendente.
 function ordenarStock(lista){
+  const CATEGORIAS_CON_COLOR = ['sombreo', 'mosquitera'];
   return [...lista].sort((a, b) => {
     const catA = ORDEN_CATEGORIAS.indexOf(a.cat);
     const catB = ORDEN_CATEGORIAS.indexOf(b.cat);
     if(catA !== catB) return catA - catB;
 
-    if(a.cat === 'sombreo'){
-      const colorA = extraerColorSombreo(a.desc);
-      const colorB = extraerColorSombreo(b.desc);
+    if(CATEGORIAS_CON_COLOR.includes(a.cat)){
+      const colorA = extraerColor(a.desc);
+      const colorB = extraerColor(b.desc);
       if(colorA !== colorB) return colorA.localeCompare(colorB, 'es');
     }
 
