@@ -21,27 +21,26 @@
   }
   *{box-sizing:border-box;}
   body{
-  margin:0;
-  background:var(--bg);
-  font-family:'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
-  min-height:100dvh;
-  width:100%;
-  overflow:hidden;
-}
-
-.phone{
-  width:100%;
-  max-width:none;
-  min-height:100dvh;
-  height:100dvh;
-  background:var(--bg);
-  border-radius:0;
-  box-shadow:none;
-  overflow:hidden;
-  display:flex;
-  flex-direction:column;
-  position:relative;
-}
+    margin:0;
+    background:#C3D4DE;
+    font-family:'Manrope', -apple-system, sans-serif;
+    display:flex;
+    justify-content:center;
+    padding:24px 12px;
+    min-height:100vh;
+  }
+  .phone{
+    width:390px;
+    max-width:100%;
+    background:var(--bg);
+    border-radius:30px;
+    box-shadow:0 24px 60px rgba(6,40,58,0.35);
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+    height:800px;
+    position:relative;
+  }
   header{
     background:linear-gradient(135deg, var(--brand-dark), var(--ink) 130%);
     color:#fff;
@@ -62,39 +61,6 @@
   header .title{ font-size:15.5px; font-weight:800; letter-spacing:0.01em;}
   header .title .andalucia{ font-weight:500; opacity:0.7; font-size:11.5px; margin-left:5px;}
   header .subtitle{ font-size:10.8px; color:rgba(255,255,255,0.62); margin-top:2px;}
-  header .gear{
-    background:rgba(255,255,255,0.12);
-    border:none;
-    color:rgba(255,255,255,0.85);
-    width:30px; height:30px;
-    border-radius:8px;
-    font-size:14px;
-    cursor:pointer;
-    flex-shrink:0;
-  }
-
-  .modal-overlay{
-    position:absolute; inset:0; background:rgba(10,25,35,0.55);
-    display:none; align-items:center; justify-content:center; z-index:50;
-    border-radius:30px;
-  }
-  .modal-overlay.active{ display:flex; }
-  .modal-box{
-    background:var(--card); border-radius:14px; padding:20px; width:78%;
-    box-shadow:0 10px 30px rgba(0,0,0,0.3);
-  }
-  .modal-box h3{ margin:0 0 4px; font-size:14px; color:var(--ink); }
-  .modal-box p{ margin:0 0 12px; font-size:11.5px; color:var(--slate); line-height:1.4;}
-  .modal-box input{
-    width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--border);
-    font-size:16px; letter-spacing:5px; text-align:center; margin-bottom:10px; font-family:inherit;
-  }
-  .modal-actions{ display:flex; gap:8px; }
-  .modal-actions button{ flex:1; padding:9px; border-radius:8px; border:none; font-weight:700; font-size:12.5px; cursor:pointer; font-family:inherit;}
-  .modal-actions .cancel{ background:#EEF2F5; color:var(--slate); }
-  .modal-actions .confirm{ background:var(--brand-light); color:#fff; }
-  .modal-error{ font-size:11px; color:var(--bad); margin:-6px 0 8px; display:none; }
-
   main{ flex:1; overflow-y:auto; padding:16px 16px 8px; }
   .view{display:none;}
   .view.active{display:block;}
@@ -109,6 +75,52 @@
   }
   .search-wrap input:focus{ outline:2px solid var(--brand-light); outline-offset:1px; }
   .stock-meta{ font-size:11.5px; color:var(--slate); margin-bottom:10px; }
+
+  .chips{ display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin-bottom:12px; }
+  .chip{
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
+    padding:11px 4px; border-radius:12px; border:1.5px solid var(--border);
+    background:var(--card); color:var(--slate); font-family:inherit; font-size:11.5px; font-weight:700;
+    cursor:pointer; line-height:1.15; text-align:center;
+  }
+  .chip-icon{ font-size:19px; line-height:1; }
+  .chip-icon.icon-black{ filter: brightness(0); }
+  .chip.active{ background:var(--brand-light); border-color:var(--brand-light); color:#fff; }
+
+  .sub-chips{ display:none; align-items:center; gap:10px; margin:-4px 0 12px; }
+  .color-dot{
+    width:32px; height:32px; border-radius:50%; border:2px solid var(--border);
+    cursor:pointer; padding:0; flex-shrink:0; position:relative;
+  }
+  .color-dot.active{ border-color:var(--ink); box-shadow:0 0 0 3px rgba(22,50,68,0.18); }
+  .color-dot.active::after{
+    content:'✓'; position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    font-size:14px; font-weight:800; color:#fff; text-shadow:0 0 2px rgba(0,0,0,0.6);
+  }
+  .color-dot.todos{
+    display:flex; align-items:center; justify-content:center; font-size:9.5px; font-weight:700;
+    color:var(--slate); background:var(--card);
+  }
+  .color-dot.todos.active{ color:var(--ink); }
+  .color-dot.todos.active::after{ content:none; }
+
+  .toggle-row{
+    display:flex; align-items:center; justify-content:space-between; font-size:12.5px; color:var(--ink); font-weight:500;
+    margin-bottom:12px; padding:10px 13px; background:var(--card); border:1px solid var(--border); border-radius:10px;
+    cursor:pointer; user-select:none;
+  }
+  .switch{ position:relative; width:38px; height:22px; flex-shrink:0; }
+  .switch input{ position:absolute; opacity:0; width:100%; height:100%; margin:0; cursor:pointer; }
+  .switch-track{
+    position:absolute; inset:0; background:#D3DCE3; border-radius:999px; transition:background .15s ease;
+  }
+  .switch-track::before{
+    content:''; position:absolute; top:2px; left:2px; width:18px; height:18px; border-radius:50%;
+    background:#fff; box-shadow:0 1px 3px rgba(0,0,0,0.25); transition:transform .15s ease;
+  }
+  .switch input:checked + .switch-track{ background:var(--brand-light); }
+  .switch input:checked + .switch-track::before{ transform:translateX(16px); }
+
   .stock-item{
     background:var(--card); border:1px solid var(--border); border-radius:10px;
     padding:11px 13px; margin-bottom:8px; display:flex;
@@ -120,56 +132,6 @@
   .qty.high{color:var(--ok);} .qty.low{color:var(--warn);} .qty.zero{color:var(--bad);}
   .qty-label{ font-size:9px; color:var(--slate); font-weight:500; text-align:right; }
 
-  .field{margin-bottom:14px;}
-  .field label{ display:block; font-size:12px; color:var(--slate); margin-bottom:5px; font-weight:500;}
-  .field select, .field input, .field textarea{
-    width:100%; padding:11px 12px; border-radius:10px;
-    border:1px solid var(--border); background:var(--card);
-    font-size:14px; color:var(--ink); font-family:inherit;
-  }
-  .field textarea{ font-family:ui-monospace, monospace; font-size:11.5px; resize:vertical; min-height:90px;}
-  .row2{display:flex; gap:10px;} .row2 .field{flex:1;}
-
-  .btn{
-    width:100%; padding:12px; border-radius:10px; border:none;
-    background:var(--brand-light); color:#fff; font-weight:700; font-size:13.5px;
-    font-family:inherit; cursor:pointer; margin-top:4px;
-  }
-  .btn.secondary{ background:var(--card); color:var(--brand-dark); border:1.5px solid var(--brand-light); }
-  .btn:active{ transform:scale(0.98); }
-
-  .hint{ font-size:11.5px; color:var(--slate); line-height:1.5; margin-bottom:14px; background:#E7F1F7; border-radius:10px; padding:10px 12px;}
-
-  .result{ margin-top:16px; border-radius:12px; padding:16px; border:1.5px solid transparent; }
-  .result.ok{background:var(--ok-bg); border-color:var(--ok);}
-  .result.warn{background:var(--warn-bg); border-color:var(--warn);}
-  .result.bad{background:var(--bad-bg); border-color:var(--bad);}
-  .result .status{ font-size:14.5px; font-weight:700; display:flex; align-items:center; gap:8px; }
-  .result.ok .status{color:var(--ok);} .result.warn .status{color:var(--warn);} .result.bad .status{color:var(--bad);}
-  .dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
-  .result.ok .dot{background:var(--ok);} .result.warn .dot{background:var(--warn);} .result.bad .dot{background:var(--bad);}
-  .result .detail{ font-size:12.3px; color:var(--ink); margin-top:8px; line-height:1.5; }
-  .result .figures{
-    display:flex; justify-content:space-between; margin-top:12px; padding-top:12px;
-    border-top:1px solid rgba(0,0,0,0.08); font-family:ui-monospace, monospace; font-size:12.5px;
-  }
-  .result .figures div span{display:block; font-size:9.5px; font-family:'Manrope',sans-serif; color:var(--slate); margin-bottom:2px;}
-
-  .preview-table{ margin-top:14px; border:1px solid var(--border); border-radius:10px; overflow:hidden; background:var(--card);}
-  .preview-row{ display:flex; padding:8px 10px; font-size:11.5px; border-bottom:1px solid var(--border); gap:6px;}
-  .preview-row:last-child{border-bottom:none;}
-  .preview-row.head{ background:#EAF3F8; font-weight:700; color:var(--brand-dark); font-size:10px; }
-  .preview-row .c1{ width:78px; font-family:ui-monospace,monospace; color:var(--slate); flex-shrink:0;}
-  .preview-row .c2{ flex:1; color:var(--ink); }
-  .preview-row .c3{ width:38px; text-align:right; font-weight:700; }
-  .discarded{ font-size:10.5px; color:var(--slate); margin-top:8px; }
-  .status-line{ font-size:12px; font-weight:600; margin-top:12px; padding:9px 12px; border-radius:8px; }
-  .status-line.ok{ background:var(--ok-bg); color:var(--ok); }
-
-  nav{ display:flex; border-top:1px solid var(--border); background:var(--card); }
-  nav button{ flex:1; background:none; border:none; padding:11px 0 9px; font-family:inherit; font-size:11px; color:var(--slate); cursor:pointer; font-weight:600;}
-  nav button .icon{ display:block; font-size:17px; margin-bottom:2px; }
-  nav button.active{ color:var(--brand-dark); }
   ::-webkit-scrollbar{width:0;}
 </style>
 </head>
@@ -177,85 +139,42 @@
 
 <div class="phone">
 
-  <div class="modal-overlay" id="pinModal">
-    <div class="modal-box">
-      <h3>Acceso administrador</h3>
-      <p>Introduce el PIN para actualizar el stock. Los comerciales no ven esta opción — es solo para gerencia.</p>
-      <input type="password" id="pinInput" inputmode="numeric" maxlength="4" placeholder="····">
-      <div class="modal-error" id="pinError">PIN incorrecto</div>
-      <div class="modal-actions">
-        <button class="cancel" id="pinCancel">Cancelar</button>
-        <button class="confirm" id="pinConfirm">Entrar</button>
-      </div>
-    </div>
-  </div>
-
   <header>
     <img src="data:image/png;base64,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" alt="DIMARC">
     <div class="brandtext">
       <div class="title">DIMARC<span class="andalucia">Andalucía</span></div>
       <div class="subtitle" id="subtitle">Stock actualizado · hoy 08:14</div>
     </div>
-    <button class="gear" id="gearBtn" title="Administración">⚙</button>
   </header>
 
   <main>
-    <!-- STOCK -->
     <div class="view active" id="view-stock">
       <div class="search-wrap">
         <input type="text" id="searchInput" placeholder="Buscar por código o descripción...">
       </div>
+
+      <div class="chips" id="categoryChips">
+        <button class="chip active" data-cat="todos"><span class="chip-icon">📦</span>Todos</button>
+        <button class="chip" data-cat="sombreo"><span class="chip-icon">🌤️</span>Sombreo</button>
+        <button class="chip" data-cat="antihierba"><span class="chip-icon">🌱</span>Antihierba</button>
+        <button class="chip" data-cat="plastico"><span class="chip-icon icon-black">🧻</span>Plástico</button>
+        <button class="chip" data-cat="mosquitera"><span class="chip-icon">🦟</span>Mosquitera</button>
+      </div>
+
+      <div class="chips sub-chips" id="colorChips"></div>
+
+      <label class="toggle-row">
+        <span>Solo con stock disponible</span>
+        <span class="switch">
+          <input type="checkbox" id="soloConStock">
+          <span class="switch-track"></span>
+        </span>
+      </label>
+
       <div class="stock-meta" id="stockMeta"></div>
       <div id="stockList"></div>
     </div>
-
-    <!-- ACTUALIZAR STOCK (solo admin) -->
-    <div class="view" id="view-update">
-      <h2 class="section-title">Actualizar stock (admin)</h2>
-      <div class="hint">Pega aquí el bloque tal cual lo copias de tu programa (con Almacén, Artículo, Stock y PVP). La app separa sola el código y la descripción, e ignora Almacén y PVP.</div>
-      <div class="field">
-        <label>Pegar datos exportados</label>
-        <textarea id="rawInput" placeholder="Pega aquí las filas copiadas..."></textarea>
-      </div>
-      <button class="btn secondary" id="btnDemo">Rellenar con ejemplo</button>
-      <button class="btn" id="btnProcess">Procesar</button>
-      <div id="previewWrap"></div>
-    </div>
-
-    <!-- DESCUENTOS -->
-    <div class="view" id="view-discount">
-      <h2 class="section-title">Validar descuento</h2>
-      <div class="field">
-        <label>Categoría de producto</label>
-        <select id="catSelect"></select>
-      </div>
-      <div class="row2">
-        <div class="field">
-          <label>PVP (€)</label>
-          <input type="number" id="pvpInput" placeholder="Ej. 178,76" step="0.01">
-        </div>
-        <div class="field">
-          <label>Descuento (%)</label>
-          <input type="number" id="descInput" placeholder="Ej. 15" step="0.5">
-        </div>
-      </div>
-      <div class="hint">⚠️ Los límites de margen por categoría son de ejemplo. Cuando me pases la tabla real de límites, la sustituyo por la vuestra.</div>
-      <div class="result ok" id="resultBox" style="display:none;">
-        <div class="status"><span class="dot"></span><span id="statusText"></span></div>
-        <div class="detail" id="detailText"></div>
-        <div class="figures">
-          <div><span>Precio final</span><span id="finalPrice">-</span></div>
-          <div><span>Margen resultante</span><span id="finalMargin">-</span></div>
-          <div><span>Límite categoría</span><span id="catLimit">-</span></div>
-        </div>
-      </div>
-    </div>
   </main>
-
-  <nav>
-    <button class="active" data-view="stock"><span class="icon">▤</span>Stock</button>
-    <button data-view="discount"><span class="icon">◐</span>Descuentos</button>
-  </nav>
 </div>
 
 <script>
@@ -265,27 +184,53 @@ const REFRESCO_AUTOMATICO_MS = 3 * 60 * 1000; // vuelve a comprobar cada 3 minut
 
 let stock = []; // se rellena solo al cargar, ver cargarStockEnVivo()
 
-const rawExportSample = `__RAW_SAMPLE__`;
-const ADMIN_PIN = "1234"; // Demo: en la app real esto no iría escrito en el código, sino en el backend.
-
 // Categorías detectadas automáticamente a partir de la descripción
 function detectarCategoria(desc){
-  if(desc.includes('MALLA ANTIHIERBA')) return 'antihierba';
+  if(desc.includes('MOSQUITERA')) return 'mosquitera';
   if(desc.includes('SOMBREO')) return 'sombreo';
+  if(desc.includes('MALLA ANTIHIERBA')) return 'antihierba';
   if(desc.includes('MALLA 6X6')) return 'malla6x6';
   if(desc.includes('PLASTICO AGRICOLA') || desc.includes('PLASTICO')) return 'plastico';
   return 'otros';
 }
 stock.forEach(s => s.cat = detectarCategoria(s.desc));
 
-// Límites de descuento de EJEMPLO (pendiente de vuestra tabla real)
-const limites = {
-  antihierba: {nombre:"Malla antihierba", margenMin: 18, margenAviso: 22},
-  sombreo:    {nombre:"Malla de sombreo", margenMin: 20, margenAviso: 25},
-  malla6x6:   {nombre:"Malla 6x6",        margenMin: 22, margenAviso: 27},
-  plastico:   {nombre:"Plástico agrícola",margenMin: 15, margenAviso: 19},
-  otros:      {nombre:"Otros / restos",   margenMin: 10, margenAviso: 14},
-};
+// Orden en el que queremos que aparezcan las categorías en la lista
+const ORDEN_CATEGORIAS = ['sombreo', 'antihierba', 'plastico', 'mosquitera', 'malla6x6', 'otros'];
+
+// Saca la medida (en metros) de la descripción para poder ordenar de menor a mayor.
+// Sirve tanto para "2,10M" (antihierba/sombreo) como para "4X50MT" (plástico agrícola).
+function extraerMedida(desc){
+  let m = desc.match(/([\d]+(?:,[\d]+)?)\s*M(?!T)/i);
+  if(m) return parseFloat(m[1].replace(',', '.'));
+  m = desc.match(/(\d+)X\d+MT/i);
+  if(m) return parseFloat(m[1]);
+  return 999999; // si no encontramos medida, lo mandamos al final
+}
+
+// Saca el color de un artículo de sombreo, ej: "...90% 1M VERDE CLARO" -> "VERDE CLARO"
+function extraerColorSombreo(desc){
+  const m = desc.match(/SOMBREO\s+\d+%\s+[\d,]+M\s+(.+)/i);
+  return m ? m[1].trim() : '';
+}
+
+// Ordena el stock: primero por categoría (según ORDEN_CATEGORIAS), y dentro de
+// "sombreo" por color y luego medida; en el resto, por medida ascendente.
+function ordenarStock(lista){
+  return [...lista].sort((a, b) => {
+    const catA = ORDEN_CATEGORIAS.indexOf(a.cat);
+    const catB = ORDEN_CATEGORIAS.indexOf(b.cat);
+    if(catA !== catB) return catA - catB;
+
+    if(a.cat === 'sombreo'){
+      const colorA = extraerColorSombreo(a.desc);
+      const colorB = extraerColorSombreo(b.desc);
+      if(colorA !== colorB) return colorA.localeCompare(colorB, 'es');
+    }
+
+    return extraerMedida(a.desc) - extraerMedida(b.desc);
+  });
+}
 
 
 // --- Parser CSV sencillo, respeta comas dentro de comillas (las descripciones las llevan) ---
@@ -331,7 +276,7 @@ async function cargarStockEnVivo(silencioso){
         stock: Math.round(parseFloat((f[2]||'0').replace(/\./g,'').replace(',', '.'))) || 0
       }));
     if(datos.length > 0){
-      stock = datos.map(s => ({...s, cat: detectarCategoria(s.desc)}));
+      stock = ordenarStock(datos.map(s => ({...s, cat: detectarCategoria(s.desc)})));
       renderStock(document.getElementById('searchInput').value);
     }
     const ahora = new Date();
@@ -352,45 +297,71 @@ document.addEventListener('visibilitychange', () => {
   if(document.visibilityState === 'visible') cargarStockEnVivo(true);
 });
 
-// ------ NAVEGACIÓN inferior (Stock / Descuentos, visible para comerciales) ------
-document.querySelectorAll('nav button').forEach(btn=>{
-  btn.addEventListener('click', ()=>{
-    document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-    document.getElementById('view-'+btn.dataset.view).classList.add('active');
-  });
-});
+// ------ VISTA STOCK con filtros (categoría + color + texto + solo con stock) ------
+let categoriaActiva = 'todos';
+let colorActivo = '';
 
-// ------ ACCESO ADMIN vía PIN ------
-const pinModal = document.getElementById('pinModal');
-document.getElementById('gearBtn').addEventListener('click', ()=>{
-  document.getElementById('pinInput').value = '';
-  document.getElementById('pinError').style.display = 'none';
-  pinModal.classList.add('active');
-  document.getElementById('pinInput').focus();
-});
-document.getElementById('pinCancel').addEventListener('click', ()=>{
-  pinModal.classList.remove('active');
-});
-document.getElementById('pinConfirm').addEventListener('click', ()=>{
-  const val = document.getElementById('pinInput').value;
-  if(val === ADMIN_PIN){
-    pinModal.classList.remove('active');
-    document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
-    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-    document.getElementById('view-update').classList.add('active');
-  } else {
-    document.getElementById('pinError').style.display = 'block';
+const COLORES_POR_CATEGORIA = {
+  sombreo: [
+    {match:'BEIGE', label:'Beige', color:'#D9C9A3'},
+    {match:'NEGRO', label:'Negro', color:'#1A1A1A'},
+    {match:'MARRON', label:'Marrón', color:'#7B4B2A'},
+    {match:'VERDE', label:'Verde', color:'#8BC34A'},
+  ],
+  mosquitera: [
+    {match:'VERDE', label:'Verde', color:'#8BC34A'},
+    {match:'BLANCA', label:'Blanca', color:'#FFFFFF', borde:'#1A1A1A'},
+  ],
+};
+
+function renderColorChips(){
+  const cont = document.getElementById('colorChips');
+  const opciones = COLORES_POR_CATEGORIA[categoriaActiva];
+  colorActivo = '';
+  if(!opciones){
+    cont.style.display = 'none';
+    cont.innerHTML = '';
+    return;
   }
+  cont.style.display = 'flex';
+  cont.innerHTML = '<button class="color-dot todos active" data-match="" title="Todos">Todos</button>' +
+    opciones.map(o => `<button class="color-dot" data-match="${o.match}" title="${o.label}" style="background:${o.color};${o.borde ? 'border-color:'+o.borde+';' : ''}"></button>`).join('');
+}
+
+document.getElementById('categoryChips').addEventListener('click', (e)=>{
+  const btn = e.target.closest('.chip');
+  if(!btn) return;
+  document.querySelectorAll('#categoryChips .chip').forEach(c=>c.classList.remove('active'));
+  btn.classList.add('active');
+  categoriaActiva = btn.dataset.cat;
+  renderColorChips();
+  renderStock(document.getElementById('searchInput').value);
 });
 
-// ------ VISTA STOCK ------
+document.getElementById('colorChips').addEventListener('click', (e)=>{
+  const btn = e.target.closest('.color-dot');
+  if(!btn) return;
+  document.querySelectorAll('#colorChips .color-dot').forEach(c=>c.classList.remove('active'));
+  btn.classList.add('active');
+  colorActivo = btn.dataset.match;
+  renderStock(document.getElementById('searchInput').value);
+});
+
+document.getElementById('soloConStock').addEventListener('change', ()=>{
+  renderStock(document.getElementById('searchInput').value);
+});
+
 function qtyClass(q){ if(q===0) return 'zero'; if(q<15) return 'low'; return 'high'; }
 function renderStock(filter=""){
   const list = document.getElementById('stockList');
   const f = filter.trim().toLowerCase();
-  const filtered = stock.filter(s => s.cod.toLowerCase().includes(f) || s.desc.toLowerCase().includes(f));
+  const soloConStock = document.getElementById('soloConStock').checked;
+  const filtered = stock.filter(s =>
+    (s.cod.toLowerCase().includes(f) || s.desc.toLowerCase().includes(f)) &&
+    (categoriaActiva === 'todos' || s.cat === categoriaActiva) &&
+    (!colorActivo || s.desc.includes(colorActivo)) &&
+    (!soloConStock || s.stock > 0)
+  );
   document.getElementById('stockMeta').textContent = filtered.length + " referencia" + (filtered.length!==1?"s":"") + " de " + stock.length + " totales";
   list.innerHTML = filtered.map(s => `
     <div class="stock-item">
@@ -407,107 +378,6 @@ function renderStock(filter=""){
 }
 document.getElementById('searchInput').addEventListener('input', e=>renderStock(e.target.value));
 renderStock(); // pinta vacío hasta que llegue el primer fetch
-
-// ------ VISTA ACTUALIZAR STOCK (admin) ------
-document.getElementById('btnDemo').addEventListener('click', ()=>{
-  document.getElementById('rawInput').value = rawExportSample;
-});
-
-function parseRaw(text){
-  const lines = text.split(/\r?\n/).map(l=>l.trim()).filter(l=>l.length>0);
-  const parsed = [];
-  for(const line of lines){
-    if(/almac[ée]n/i.test(line) && /art[íi]culo/i.test(line)) continue;
-    let cols = line.split('\t');
-    if(cols.length < 2) cols = line.split(/\s{2,}/);
-    let articuloIdx = cols.findIndex(c => / - /.test(c));
-    if(articuloIdx === -1) continue;
-    let articulo = cols[articuloIdx].replace(/^\t+/, '').trim();
-    let [cod, ...descParts] = articulo.split(' - ');
-    let desc = descParts.join(' - ').trim();
-    cod = cod.trim();
-    let stockVal = null;
-    for(let i=articuloIdx+1; i<cols.length; i++){
-      const n = parseFloat(cols[i].replace(/\./g,'').replace(',', '.'));
-      if(!isNaN(n)){ stockVal = Math.round(n); break; }
-    }
-    if(cod && stockVal !== null){
-      parsed.push({cod, desc, stock: stockVal});
-    }
-  }
-  return parsed;
-}
-
-let lastParsed = [];
-document.getElementById('btnProcess').addEventListener('click', ()=>{
-  const raw = document.getElementById('rawInput').value;
-  lastParsed = parseRaw(raw);
-  const wrap = document.getElementById('previewWrap');
-  if(lastParsed.length === 0){
-    wrap.innerHTML = `<div class="hint">No se ha reconocido ninguna fila válida. Revisa que el formato sea el mismo que exporta tu programa.</div>`;
-    return;
-  }
-  let rows = lastParsed.slice(0,6).map(p => `
-    <div class="preview-row">
-      <div class="c1">${p.cod}</div>
-      <div class="c2">${p.desc}</div>
-      <div class="c3">${p.stock}</div>
-    </div>
-  `).join('');
-  wrap.innerHTML = `
-    <div class="preview-table">
-      <div class="preview-row head"><div class="c1">Código</div><div class="c2">Descripción</div><div class="c3">Stock</div></div>
-      ${rows}
-    </div>
-    ${lastParsed.length > 6 ? `<div class="discarded">... y ${lastParsed.length-6} referencias más (Almacén y PVP descartados)</div>` : `<div class="discarded">Almacén y PVP descartados automáticamente</div>`}
-    <button class="btn" id="btnApply" style="margin-top:12px;">Usar este stock en la app</button>
-  `;
-  document.getElementById('btnApply').addEventListener('click', ()=>{
-    stock = lastParsed.map(p => ({...p, cat: detectarCategoria(p.desc)}));
-    renderStock();
-    document.getElementById('subtitle').textContent = 'Stock actualizado · ahora mismo';
-    wrap.innerHTML += `<div class="status-line ok">✓ Stock de la app actualizado (${lastParsed.length} referencias)</div>`;
-  });
-});
-
-// ------ VISTA DESCUENTOS ------
-const catSelect = document.getElementById('catSelect');
-Object.entries(limites).forEach(([key,val])=>{
-  const opt = document.createElement('option');
-  opt.value = key; opt.textContent = val.nombre;
-  catSelect.appendChild(opt);
-});
-
-function evaluar(){
-  const cat = catSelect.value;
-  const pvp = parseFloat(document.getElementById('pvpInput').value);
-  const desc = parseFloat(document.getElementById('descInput').value);
-  const box = document.getElementById('resultBox');
-  if(isNaN(pvp) || isNaN(desc) || !cat){ box.style.display = 'none'; return; }
-  const lim = limites[cat];
-  const precioFinal = pvp * (1 - desc/100);
-  const margenResultante = 100 - desc;
-  box.style.display = 'block';
-  box.classList.remove('ok','warn','bad');
-  let estado, texto;
-  if(margenResultante < lim.margenMin){ estado='bad'; texto='No se puede aplicar'; }
-  else if(margenResultante < lim.margenAviso){ estado='warn'; texto='Al límite — consultar con central'; }
-  else { estado='ok'; texto='Descuento permitido'; }
-  box.classList.add(estado);
-  document.getElementById('statusText').textContent = texto;
-  document.getElementById('detailText').textContent =
-    `${lim.nombre}: margen mínimo aceptado ${lim.margenMin}%. ` +
-    (estado==='bad' ? `Con este descuento el margen queda en ${margenResultante.toFixed(1)}%, por debajo del límite.`
-     : estado==='warn' ? `El margen resultante (${margenResultante.toFixed(1)}%) está cerca del mínimo permitido.`
-     : `El margen resultante (${margenResultante.toFixed(1)}%) cumple sin problema.`);
-  document.getElementById('finalPrice').textContent = precioFinal.toFixed(2) + ' €';
-  document.getElementById('finalMargin').textContent = margenResultante.toFixed(1) + '%';
-  document.getElementById('catLimit').textContent = lim.margenMin + '%';
-}
-['catSelect','pvpInput','descInput'].forEach(id=>{
-  document.getElementById(id).addEventListener('input', evaluar);
-  document.getElementById(id).addEventListener('change', evaluar);
-});
 </script>
 
 </body>
