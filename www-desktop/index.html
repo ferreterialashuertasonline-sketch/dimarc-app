@@ -99,6 +99,48 @@
   tbody tr + tr{ margin-top:6px; }
   .cat-tag{ display:inline-block; padding:3px 9px; border-radius:999px; font-size:10.5px; font-weight:700; background:#E7F1F7; color:var(--brand-dark); }
   .qty.high{color:var(--ok);} .qty.low{color:var(--warn);} .qty.zero{color:var(--bad);}
+
+  /* ---------- Nav Stock / Pedidos ---------- */
+  .nav-views{ display:flex; gap:6px; margin-bottom:18px; background:var(--bg); border-radius:9px; padding:4px; }
+  .nav-views button{
+    flex:1; padding:8px 6px; border:none; border-radius:7px; background:transparent; color:var(--slate);
+    font-family:inherit; font-size:12px; font-weight:700; cursor:pointer;
+  }
+  .nav-views button.active{ background:var(--card); color:var(--brand-dark); box-shadow:0 1px 3px rgba(22,50,68,0.12); }
+
+  /* ---------- Pedidos ---------- */
+  .qty-input, .price-input{
+    width:70px; padding:6px 8px; border-radius:7px; border:1px solid var(--border);
+    font-family:inherit; font-size:12.5px; color:var(--ink); text-align:right;
+  }
+  .qty-input:focus, .price-input:focus{ outline:2px solid var(--brand-light); }
+  .subtotal-cell{ font-weight:700; }
+
+  .order-panel{
+    width:300px; flex-shrink:0; border-left:1px solid var(--border); background:var(--card);
+    display:flex; flex-direction:column; padding:20px; overflow-y:auto;
+  }
+  .order-panel h2{ font-size:14px; margin:0 0 14px; color:var(--ink); }
+  .order-panel label{ display:block; font-size:11.5px; color:var(--slate); font-weight:600; margin-bottom:5px; }
+  .order-panel input[type=text], .order-panel textarea{
+    width:100%; padding:9px 10px; border-radius:8px; border:1px solid var(--border);
+    font-family:inherit; font-size:13px; color:var(--ink); margin-bottom:14px; resize:vertical;
+  }
+  .order-lines{ flex:1; overflow-y:auto; margin-bottom:12px; }
+  .order-line{
+    display:flex; justify-content:space-between; align-items:flex-start; gap:8px;
+    padding:9px 0; border-bottom:1px solid var(--border); font-size:12px;
+  }
+  .order-line .l-desc{ color:var(--ink); font-weight:600; line-height:1.3; }
+  .order-line .l-meta{ color:var(--slate); font-size:11px; margin-top:2px; }
+  .order-line .l-remove{ background:none; border:none; color:var(--bad); cursor:pointer; font-size:15px; line-height:1; padding:2px; }
+  .order-empty{ color:var(--slate); font-size:12px; text-align:center; padding:20px 0; }
+  .order-total{ display:flex; justify-content:space-between; font-size:14px; font-weight:800; color:var(--ink); padding:12px 0; border-top:1.5px solid var(--ink); margin-bottom:14px; }
+  .btn-send{
+    width:100%; padding:12px; border-radius:9px; border:none; background:var(--brand-light); color:#fff;
+    font-family:inherit; font-size:13.5px; font-weight:700; cursor:pointer;
+  }
+  .btn-send:disabled{ background:var(--border); color:var(--slate); cursor:not-allowed; }
 </style>
 </head>
 <body>
@@ -112,6 +154,11 @@
       </div>
     </div>
     <div id="subtitle">Stock actualizado · hoy 08:14</div>
+
+    <div class="nav-views" id="navViews">
+      <button class="active" data-vista="stock">Stock</button>
+      <button data-vista="pedidos">Pedidos comerciales</button>
+    </div>
 
     <div class="search-wrap">
       <input type="text" id="searchInput" placeholder="Buscar por código o descripción...">
@@ -139,18 +186,31 @@
 
   <main>
     <div class="main-header">
-      <h1>Stock</h1>
+      <h1 id="mainTitle">Stock</h1>
       <div id="stockMeta"></div>
     </div>
     <div class="table-wrap">
       <table>
-        <thead>
+        <thead id="tableHead">
           <tr><th>Código</th><th>Descripción</th><th>Categoría</th><th style="text-align:right;">Stock</th></tr>
         </thead>
         <tbody id="stockList"></tbody>
       </table>
     </div>
   </main>
+
+  <div class="order-panel" id="orderPanel" style="display:none;">
+    <h2>Resumen del pedido</h2>
+    <label>Cliente</label>
+    <input type="text" id="clienteInput" placeholder="Nombre del cliente">
+    <label>Notas (opcional)</label>
+    <textarea id="notasInput" rows="2" placeholder="Observaciones del pedido..."></textarea>
+    <div class="order-lines" id="orderLines">
+      <div class="order-empty">Aún no has añadido artículos</div>
+    </div>
+    <div class="order-total"><span>Total</span><span id="orderTotal">0,00 €</span></div>
+    <button class="btn-send" id="btnEnviarPedido" disabled>Enviar pedido</button>
+  </div>
 
 <script>
 const STOCK_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTIDErJoooTH14kUsg4z_7MpsUIaFKjIMh82fMSPEuU41btbMPRFhFROXksHbIiO5ZgYlXdWMhqKyHK/pub?gid=0&single=true&output=csv";
@@ -201,6 +261,10 @@ function ordenarStock(lista){
 
 let categoriaActiva = 'todos';
 let colorActivo = '';
+let vistaActual = 'stock';
+let pedidoLineas = {}; // cod -> {desc, cantidad, precio}
+const EMAIL_PEDIDOS = 'comercial@dimarc.es';
+
 const COLORES_POR_CATEGORIA = {
   sombreo: [
     {match:'BEIGE', label:'Beige', color:'#D9C9A3'},
@@ -245,9 +309,23 @@ document.getElementById('soloConStock').addEventListener('change', ()=>{
   renderStock(document.getElementById('searchInput').value);
 });
 
+// ------ Nav Stock / Pedidos ------
+document.getElementById('navViews').addEventListener('click', (e)=>{
+  const btn = e.target.closest('button');
+  if(!btn) return;
+  document.querySelectorAll('#navViews button').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  vistaActual = btn.dataset.vista;
+  document.getElementById('mainTitle').textContent = vistaActual === 'pedidos' ? 'Pedidos comerciales' : 'Stock';
+  document.getElementById('orderPanel').style.display = vistaActual === 'pedidos' ? 'flex' : 'none';
+  renderStock(document.getElementById('searchInput').value);
+});
+
 function qtyClass(q){ if(q===0) return 'zero'; if(q<15) return 'low'; return 'high'; }
+
 function renderStock(filter=""){
   const tbody = document.getElementById('stockList');
+  const thead = document.getElementById('tableHead');
   const f = filter.trim().toLowerCase();
   const soloConStock = document.getElementById('soloConStock').checked;
   const filtered = stock.filter(s =>
@@ -257,15 +335,113 @@ function renderStock(filter=""){
     (!soloConStock || s.stock > 0)
   );
   document.getElementById('stockMeta').textContent = filtered.length + " referencia" + (filtered.length!==1?"s":"") + " de " + stock.length + " totales";
-  tbody.innerHTML = filtered.map(s => `
-    <tr>
-      <td>${s.cod}</td>
-      <td>${s.desc}</td>
-      <td><span class="cat-tag">${NOMBRE_CATEGORIA[s.cat] || 'Otros'}</span></td>
-      <td class="qty ${qtyClass(s.stock)}">${s.stock}</td>
-    </tr>
-  `).join('') || `<tr><td colspan="4" style="text-align:center;color:var(--slate);">Sin resultados</td></tr>`;
+
+  if(vistaActual === 'pedidos'){
+    thead.innerHTML = `<tr><th>Código</th><th>Descripción</th><th style="text-align:right;">Stock</th><th style="text-align:right;">Cantidad</th><th style="text-align:right;">Precio (€)</th><th style="text-align:right;">Subtotal</th></tr>`;
+    tbody.innerHTML = filtered.map(s => {
+      const linea = pedidoLineas[s.cod];
+      const cantidad = linea?.cantidad || '';
+      const precio = linea?.precio || '';
+      const subtotal = ((linea?.cantidad||0) * (linea?.precio||0)).toFixed(2);
+      return `
+      <tr data-cod="${s.cod}" data-desc="${s.desc.replace(/"/g,'&quot;')}">
+        <td>${s.cod}</td>
+        <td>${s.desc}</td>
+        <td class="qty ${qtyClass(s.stock)}" style="text-align:right;">${s.stock}</td>
+        <td style="text-align:right;"><input class="qty-input" type="number" min="0" step="1" data-field="cantidad" value="${cantidad}" placeholder="0"></td>
+        <td style="text-align:right;"><input class="price-input" type="number" min="0" step="0.01" data-field="precio" value="${precio}" placeholder="0,00"></td>
+        <td class="subtotal-cell" style="text-align:right;">${subtotal} €</td>
+      </tr>`;
+    }).join('') || `<tr><td colspan="6" style="text-align:center;color:var(--slate);">Sin resultados</td></tr>`;
+  } else {
+    thead.innerHTML = `<tr><th>Código</th><th>Descripción</th><th>Categoría</th><th style="text-align:right;">Stock</th></tr>`;
+    tbody.innerHTML = filtered.map(s => `
+      <tr>
+        <td>${s.cod}</td>
+        <td>${s.desc}</td>
+        <td><span class="cat-tag">${NOMBRE_CATEGORIA[s.cat] || 'Otros'}</span></td>
+        <td class="qty ${qtyClass(s.stock)}">${s.stock}</td>
+      </tr>
+    `).join('') || `<tr><td colspan="4" style="text-align:center;color:var(--slate);">Sin resultados</td></tr>`;
+  }
 }
+
+// Cambios de cantidad/precio dentro de la tabla de pedidos (sin re-render completo, para no perder el foco)
+document.getElementById('stockList').addEventListener('input', (e)=>{
+  const input = e.target.closest('input[data-field]');
+  if(!input) return;
+  const tr = input.closest('tr');
+  const cod = tr.dataset.cod;
+  const desc = tr.dataset.desc;
+  if(!pedidoLineas[cod]) pedidoLineas[cod] = {desc, cantidad:0, precio:0};
+  pedidoLineas[cod][input.dataset.field] = parseFloat(input.value) || 0;
+  if(pedidoLineas[cod].cantidad <= 0 && pedidoLineas[cod].precio <= 0) delete pedidoLineas[cod];
+
+  const cantidad = pedidoLineas[cod]?.cantidad || 0;
+  const precio = pedidoLineas[cod]?.precio || 0;
+  tr.querySelector('.subtotal-cell').textContent = (cantidad * precio).toFixed(2) + ' €';
+  renderResumenPedido();
+});
+
+function renderResumenPedido(){
+  const cont = document.getElementById('orderLines');
+  const codigos = Object.keys(pedidoLineas).filter(c => pedidoLineas[c].cantidad > 0);
+  if(codigos.length === 0){
+    cont.innerHTML = '<div class="order-empty">Aún no has añadido artículos</div>';
+  } else {
+    cont.innerHTML = codigos.map(cod => {
+      const l = pedidoLineas[cod];
+      const subtotal = (l.cantidad * l.precio).toFixed(2);
+      return `
+      <div class="order-line" data-cod="${cod}">
+        <div>
+          <div class="l-desc">${l.desc}</div>
+          <div class="l-meta">${l.cantidad} × ${l.precio.toFixed(2)} € = ${subtotal} €</div>
+        </div>
+        <button class="l-remove" data-cod="${cod}" title="Quitar">×</button>
+      </div>`;
+    }).join('');
+  }
+  const total = codigos.reduce((sum, cod) => sum + pedidoLineas[cod].cantidad * pedidoLineas[cod].precio, 0);
+  document.getElementById('orderTotal').textContent = total.toFixed(2).replace('.', ',') + ' €';
+
+  const cliente = document.getElementById('clienteInput').value.trim();
+  document.getElementById('btnEnviarPedido').disabled = codigos.length === 0 || cliente === '';
+}
+
+document.getElementById('orderLines').addEventListener('click', (e)=>{
+  const btn = e.target.closest('.l-remove');
+  if(!btn) return;
+  delete pedidoLineas[btn.dataset.cod];
+  renderResumenPedido();
+  renderStock(document.getElementById('searchInput').value);
+});
+
+document.getElementById('clienteInput').addEventListener('input', renderResumenPedido);
+
+document.getElementById('btnEnviarPedido').addEventListener('click', ()=>{
+  const cliente = document.getElementById('clienteInput').value.trim();
+  const notas = document.getElementById('notasInput').value.trim();
+  const codigos = Object.keys(pedidoLineas).filter(c => pedidoLineas[c].cantidad > 0);
+  if(codigos.length === 0 || cliente === '') return;
+
+  const fecha = new Date().toLocaleString('es-ES');
+  let cuerpo = `Pedido comercial\nCliente: ${cliente}\nFecha: ${fecha}\n\n`;
+  let total = 0;
+  codigos.forEach(cod => {
+    const l = pedidoLineas[cod];
+    const subtotal = l.cantidad * l.precio;
+    total += subtotal;
+    cuerpo += `- [${cod}] ${l.desc}\n    Cantidad: ${l.cantidad}   Precio: ${l.precio.toFixed(2)} €   Subtotal: ${subtotal.toFixed(2)} €\n`;
+  });
+  cuerpo += `\nTOTAL: ${total.toFixed(2)} €\n`;
+  if(notas) cuerpo += `\nNotas: ${notas}\n`;
+
+  const asunto = `Pedido comercial - ${cliente}`;
+  const mailtoUrl = `mailto:${EMAIL_PEDIDOS}?subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(cuerpo)}`;
+  window.location.href = mailtoUrl;
+});
+
 document.getElementById('searchInput').addEventListener('input', e=>renderStock(e.target.value));
 renderStock();
 
