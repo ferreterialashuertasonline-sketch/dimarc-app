@@ -20,6 +20,7 @@
     --bad:#C0392B; --bad-bg:#FBEAE8;
   }
   *{box-sizing:border-box;}
+  html, body{ height:100%; }
   body{
     margin:0;
     background:#C3D4DE;
@@ -40,6 +41,18 @@
     flex-direction:column;
     height:800px;
     position:relative;
+  }
+
+  /* En un móvil real (o dentro del APK), que ocupe toda la pantalla,
+     sin marco de "maqueta" ni recorte de altura fija. */
+  @media (max-width: 480px){
+    body{ padding:0; }
+    .phone{
+      width:100%;
+      height:100dvh;
+      border-radius:0;
+      box-shadow:none;
+    }
   }
   header{
     background:linear-gradient(135deg, var(--brand-dark), var(--ink) 130%);
@@ -182,7 +195,10 @@
 const STOCK_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTIDErJoooTH14kUsg4z_7MpsUIaFKjIMh82fMSPEuU41btbMPRFhFROXksHbIiO5ZgYlXdWMhqKyHK/pub?gid=0&single=true&output=csv";
 const REFRESCO_AUTOMATICO_MS = 3 * 60 * 1000; // vuelve a comprobar cada 3 minutos si la app se queda abierta
 
-let stock = []; // se rellena solo al cargar, ver cargarStockEnVivo()
+// Última foto conocida del Sheet, para que la app nunca arranque vacía
+// (se sustituye en cuanto el fetch en vivo responde).
+const STOCK_SNAPSHOT = [{"cod": "1090210100", "desc": "DIMARC ROLLO MALLA ANTIHIERBA 2,10M NEGRA 100GR DOBLE PLIEGO", "stock": 86}, {"cod": "1100105100", "desc": "DIMARC ROLLO MALLA ANTIHIERBA 1,05M NEGRA 100GR", "stock": 233}, {"cod": "1100150100", "desc": "DIMARC ROLLO MALLA ANTIHIERBA 1,50M NEGRA 100GR", "stock": 84}, {"cod": "1100210100", "desc": "DIMARC ROLLO MALLA ANTIHIERBA 2,10M NEGRA 100GR", "stock": 151}, {"cod": "1100325100", "desc": "DIMARC ROLLO MALLA ANTIHIERBA 3,25M NEGRA 100GR", "stock": 72}, {"cod": "1100420100", "desc": "DIMARC ROLLO MALLA ANTIHIERBA 4,20M NEGRA 100GR", "stock": 143}, {"cod": "1100525100", "desc": "DIMARC ROLLO MALLA ANTIHIERBA 5,25M NEGRA 100GR", "stock": 60}, {"cod": "1130525100", "desc": "DIMARC ROLLO MALLA ANTIHIERBA 5,25M NEGRA 130GR", "stock": 17}, {"cod": "4055800100", "desc": "DIMARC ROLLO SOMBREO 50% 8M GRIS/PLATA", "stock": 0}, {"cod": "4055850100", "desc": "DIMARC ROLLO SOMBREO 50% 8,5M GRIS/PLATA", "stock": 0}, {"cod": "5100100100", "desc": "DIMARC ROLLO SOMBREO 90% 1M VERDE CLARO", "stock": 49}, {"cod": "5100150100", "desc": "DIMARC ROLLO SOMBREO 90% 1,5M VERDE CLARO", "stock": 0}, {"cod": "5100200100", "desc": "DIMARC ROLLO SOMBREO 90% 2M VERDE CLARO", "stock": 27}, {"cod": "5100300100", "desc": "DIMARC ROLLO SOMBREO 90% 3M VERDE CLARO", "stock": 36}, {"cod": "5100400100", "desc": "DIMARC ROLLO SOMBREO 90% 4M VERDE CLARO", "stock": 4}, {"cod": "6100100100", "desc": "DIMARC ROLLO SOMBREO 90% 1M MARRON", "stock": 40}, {"cod": "6100150100", "desc": "DIMARC ROLLO SOMBREO 90% 1,5M MARRON", "stock": 12}, {"cod": "6100200100", "desc": "DIMARC ROLLO SOMBREO 90% 2M MARRON", "stock": 62}, {"cod": "6100300100", "desc": "DIMARC ROLLO SOMBREO 90% 3M MARRON", "stock": 20}, {"cod": "6100400100", "desc": "DIMARC ROLLO SOMBREO 90% 4M MARRON", "stock": 40}, {"cod": "7100100100", "desc": "DIMARC ROLLO SOMBREO 90% 1M BEIGE", "stock": 21}, {"cod": "7100150100", "desc": "DIMARC ROLLO SOMBREO 90% 1,5M BEIGE", "stock": 50}, {"cod": "7100200100", "desc": "DIMARC ROLLO SOMBREO 90% 2M BEIGE", "stock": 100}, {"cod": "7100300100", "desc": "DIMARC ROLLO SOMBREO 90% 3M BEIGE", "stock": 122}, {"cod": "7100400100", "desc": "DIMARC ROLLO SOMBREO 90% 4M BEIGE", "stock": 110}, {"cod": "8100100100", "desc": "DIMARC ROLLO SOMBREO 90% 1M NEGRO", "stock": 0}, {"cod": "8100150100", "desc": "DIMARC ROLLO SOMBREO 90% 1,5M NEGRO", "stock": 22}, {"cod": "8100200100", "desc": "DIMARC ROLLO SOMBREO 90% 2M NEGRO", "stock": 0}, {"cod": "8100300100", "desc": "DIMARC ROLLO SOMBREO 90% 3M NEGRO", "stock": 21}, {"cod": "8100400100", "desc": "DIMARC ROLLO SOMBREO 90% 4M NEGRO", "stock": 10}, {"cod": "9075100100", "desc": "DIMARC ROLLO MALLA 6X6 VERDE 1M", "stock": 24}, {"cod": "9075150100", "desc": "DIMARC ROLLO MALLA 6X6 VERDE 1,5M", "stock": 45}, {"cod": "9075200100", "desc": "DIMARC ROLLO MALLA 6X6 VERDE 2M", "stock": 46}, {"cod": "9075300100", "desc": "DIMARC ROLLO MALLA 6X6 VERDE 3M", "stock": 27}, {"cod": "10075100100", "desc": "DIMARC ROLLO MALLA 6X6 BLANCA 1M", "stock": 0}, {"cod": "10075150100", "desc": "DIMARC ROLLO MALLA 6X6 BLANCA 1,5M", "stock": 0}, {"cod": "10075200100", "desc": "DIMARC ROLLO MALLA 6X6 BLANCA 2M", "stock": 0}, {"cod": "10075300100", "desc": "DIMARC ROLLO MALLA 6X6 BLANCA 3M", "stock": 31}, {"cod": "337228265158", "desc": "DIMARC KG PLASTICO AGRICOLA NEGRO 12X50MT 1000 GALGAS", "stock": 0}, {"cod": "462412971154", "desc": "DIMARC ROLLO PLASTICO AGRICOLA NEGRO 4X50MT", "stock": 160}, {"cod": "697636489349", "desc": "DIMARC ROLLO PLASTICO AGRICOLA NEGRO 16X50MT", "stock": 36}, {"cod": "2619068445845", "desc": "DIMARC ROLLO PLASTICO AGRICOLA NEGRO 10X50MT", "stock": 6}, {"cod": "3356137524856", "desc": "DIMARC ROLLO PLASTICO AGRICOLA NEGRO 12X50MT", "stock": 27}, {"cod": "3799137134906", "desc": "DIMARC ROLLO PLASTICO AGRICOLA NEGRO 14X50MT", "stock": 13}, {"cod": "4507319932481", "desc": "DIMARC ROLLO PLASTICO AGRICOLA NEGRO 8X50MT", "stock": 54}, {"cod": "8346773298124", "desc": "DIMARC KG PLASTICO AGRICOLA NEGRO 12X50MT 1200 GALGAS", "stock": 0}, {"cod": "8503918346908", "desc": "DIMARC ROLLO PLASTICO AGRICOLA NEGRO 6X50MT", "stock": 153}, {"cod": "PLASTICODIMARC", "desc": "MT. PLASTICO NEGRO MAL ESTADO", "stock": 14}, {"cod": "SOMBREODIMARC", "desc": "MT. MALLA SOMBREO MAL ESTADO", "stock": 1277}];
+let stock = STOCK_SNAPSHOT; // se reordena y recategoriza justo debajo
 
 // Categorías detectadas automáticamente a partir de la descripción
 function detectarCategoria(desc){
@@ -192,6 +208,11 @@ function detectarCategoria(desc){
   if(desc.includes('PLASTICO AGRICOLA') || desc.includes('PLASTICO')) return 'plastico';
   return 'otros';
 }
+
+// Artículos de uso interno que NO son stock real y nunca deben aparecer en la app
+const CODIGOS_EXCLUIDOS = ['PLASTICODIMARC', 'SOMBREODIMARC'];
+
+stock = stock.filter(s => !CODIGOS_EXCLUIDOS.includes(s.cod));
 stock.forEach(s => s.cat = detectarCategoria(s.desc));
 
 // Orden en el que queremos que aparezcan las categorías en la lista
@@ -269,7 +290,7 @@ async function cargarStockEnVivo(silencioso){
     const texto = await resp.text();
     const filas = parsearCSV(texto);
     const datos = filas.slice(1) // saltamos la cabecera COD ARTICULO / DESCRIPCION / STOCK ACTUAL
-      .filter(f => f.length >= 3 && f[0] && f[0].trim() !== '')
+      .filter(f => f.length >= 3 && f[0] && f[0].trim() !== '' && !CODIGOS_EXCLUIDOS.includes(f[0].trim()))
       .map(f => ({
         cod: (f[0]||'').trim(),
         desc: (f[1]||'').trim(),
